@@ -1,0 +1,79 @@
+{
+	"name": "REDCapAgentRexiTools",
+
+	"namespace": "Stanford\\REDCapAgentRexiTools",
+
+	"description": "REDCapAgentRexiTools is a lightweight External Module scaffold for RExI-specific agent tools used by the SecureChatAI agent orchestration system.",
+
+	"documentation": "README.md",
+
+	"authors": [
+		{
+			"name": "Irvin Szeto",
+			"email": "irvins@stanford.edu",
+			"institution": "Stanford University"
+		}
+	],
+
+	"permissions": [
+
+	],
+	
+	"framework-version": 14,
+    "enable-every-page-hooks-on-system-pages": false,
+
+	"links": {
+		"project": [
+
+		],
+		"control-center": [
+
+		]
+	},
+
+	"api-actions": {
+		"escalation_create": {
+			"description": "Agent tool: create an escalation ticket in the configured escalation project",
+			"access": ["auth"]
+		},
+		"escalation_list": {
+			"description": "Agent tool: list escalation tickets for the current user with optional status filter",
+			"access": ["auth"]
+		},
+		"escalation_get": {
+			"description": "Agent tool: fetch details for a specific escalation ticket by record_id",
+			"access": ["auth"]
+		}
+	},
+
+	"project-settings": [
+		{
+			"key": "enable-project-debug-logging",
+			"name": "<b>Enable Debug Logging</b><br><i>(optional)</i> Requires installation and configuration of emLogger",
+			"required": false,
+			"type": "checkbox"
+		}
+	],
+
+	"system-settings": [
+		{
+			"key": "escalation-project-id",
+			"name": "<b>Escalation Project ID</b><br><i>Project that stores escalation tickets</i>",
+			"required": false,
+			"type": "project-id"
+		},
+		{
+			"key": "enable-system-debug-logging",
+			"name": "<b>Enable Debug Logging (system-wide)</b><i>(optional)</i> Requires installation and configuration of emLogger",
+			"required": false,
+			"type": "checkbox"
+		}
+	],
+
+	"compatibility": {
+		"php-version-min": "",
+		"php-version-max": "",
+		"redcap-version-min": "",
+		"redcap-version-max": ""
+	}
+}
