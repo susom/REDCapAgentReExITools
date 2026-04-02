@@ -46,6 +46,54 @@
 		}
 	},
 
+	"agent-tool-definitions": [
+		{
+			"name": "escalation.create",
+			"description": "Create an escalation ticket for a research project issue",
+			"api-action": "escalation_create",
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"subject": {"type": "string", "description": "Brief subject line for the escalation"},
+					"summary": {"type": "string", "description": "Detailed description of the issue"},
+					"priority": {"type": "string", "enum": ["low", "medium", "high"], "description": "Escalation priority level", "default": "medium"},
+					"username": {"type": "string", "description": "REDCap username of the reporter"}
+				},
+				"required": ["subject", "summary"]
+			},
+			"readOnly": false,
+			"destructive": false
+		},
+		{
+			"name": "escalation.list",
+			"description": "List escalation tickets for the current user, with optional status filter",
+			"api-action": "escalation_list",
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"status": {"type": "string", "enum": ["open", "in_progress", "resolved", "all"], "description": "Filter by ticket status", "default": "open"},
+					"username": {"type": "string", "description": "REDCap username to filter by"}
+				}
+			},
+			"readOnly": true,
+			"destructive": false
+		},
+		{
+			"name": "escalation.get",
+			"description": "Fetch details for a specific escalation ticket by record ID",
+			"api-action": "escalation_get",
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"record_id": {"type": "string", "description": "The escalation ticket record ID to fetch"}
+				},
+				"required": ["record_id"]
+			},
+			"readOnly": true,
+			"destructive": false
+		}
+	],
+
 	"project-settings": [
 		{
 			"key": "enable-project-debug-logging",
