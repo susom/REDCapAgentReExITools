@@ -25,7 +25,11 @@ class REDCapAgentRexiTools extends \ExternalModules\AbstractExternalModule {
     }
 
     /**
-     * Main API entry point for RExI escalation tools.
+     * API Router — redcap_module_api()
+     *
+     * Single entry point for all escalation tool calls. Called two ways:
+     *   - EM-to-EM (primary): SecureChatAI calls getModuleInstance()->redcap_module_api()
+     *   - HTTP API (testing/external): curl with content=externalModule&prefix=...
      */
     public function redcap_module_api($action = null, $payload = [])
     {
