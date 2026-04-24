@@ -4,13 +4,12 @@
 
 `REDCapAgentRexiTools` is a REDCap External Module that exposes escalation ticket
 management as callable agent tools for the SecureChatAI orchestration system.
-It has no UI — all interaction is via `redcap_module_api()`.
+It has no UI — all interaction is via `handleToolCall()`.
 
-Tools are called two ways:
-- **EM-to-EM (primary):** SecureChatAI calls `getModuleInstance()->redcap_module_api()` — direct PHP, no HTTP
-- **HTTP API (testing/external):** curl with `content=externalModule&prefix=redcap_agent_rexi_tools`
+Tools are called via EM-to-EM direct PHP:
+- SecureChatAI calls `getModuleInstance()->handleToolCall($action, $payload)` — no HTTP, no API tokens
 
-Three API actions are exposed:
+Three actions are exposed:
 - `escalation_create` — create a ticket in the configured escalation project
 - `escalation_list` — list tickets for the current user (with optional status filter)
 - `escalation_get` — fetch a single ticket by `record_id`
@@ -25,23 +24,13 @@ requirement. The module only needs to be enabled **system-wide** (no project-lev
 
 ### Entry Point
 
-`redcap_module_api($action, $payload)` in `REDCapAgentRexiTools.php` is the single
-entry point. It normalizes the payload, dispatches to the appropriate `tool*` method,
-and wraps the result via `wrapResponse()`.
+`handleToolCall(string $action, array $payload): array` in `REDCapAgentRexiTools.php` is the
+single entry point. It dispatches to the appropriate `tool*` method and returns raw result arrays.
 
-### Payload Normalization
+### Tool Manifest
 
-Agents may send payloads in multiple formats. `normalizePayload()` handles:
-1. A `payload` key containing a JSON string (nested wrapping from SecureChatAI)
-2. `$_POST['payload']` as a JSON string
-3. Raw JSON body (`php://input`)
-4. Plain `$_POST`
-
-### Response Format
-
-All responses are arrays with `status` (int), `body` (JSON string), and `headers`.
-Always use `wrapResponse()` — never return raw arrays from the API entry point.
-Error responses must include `"error" => true` to trigger the 400 status in `wrapResponse()`.
+Tool definitions live in `tools.json` (not config.json). Each tool has an `action` field
+that links to the corresponding switch case in `handleToolCall()`.
 
 ### Field Name Constants
 
@@ -74,9 +63,8 @@ debug setting is enabled. Use `$this->emDebug(...)`, `$this->emLog(...)`,
 
 - **Namespace**: `Stanford\REDCapAgentRexiTools` — used in both files.
 - **EM Framework version**: 14 (`framework-version` in `config.json`).
-- **API access control**: All three actions are declared under `api-actions` in
-  `config.json` with `"access": ["auth"]`. This is future-proofing for external
-  API access — EM-to-EM calls (the primary path) don't require authentication.
+- **Tool registration**: Tools are declared in `tools.json` with JSON Schema definitions.
+  The `action` field links each tool to its PHP switch case.
 - **No confirmation UX in this EM**: Agent confirmation flows (summarize → user
   approves → create) are handled by the agent prompt in SecureChatAI, not here.
 - **REDCap API calls**: Use `\REDCap::getData()` and `\REDCap::saveData()` (static

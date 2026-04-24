@@ -25,90 +25,36 @@ class REDCapAgentRexiTools extends \ExternalModules\AbstractExternalModule {
     }
 
     /**
-     * API Router — redcap_module_api()
+     * Tool Router — handleToolCall()
      *
-     * Single entry point for all escalation tool calls. Called two ways:
-     *   - EM-to-EM (primary): SecureChatAI calls getModuleInstance()->redcap_module_api()
-     *   - HTTP API (testing/external): curl with content=externalModule&prefix=...
+     * Single entry point for all escalation tool calls. Called by SecureChatAI via:
+     *   getModuleInstance($prefix)->handleToolCall($action, $input)
+     *
+     * EM-to-EM direct PHP call — no HTTP, no API tokens.
      */
-    public function redcap_module_api($action = null, $payload = [])
+    public function handleToolCall(string $action, array $payload = []): array
     {
-        $payload = $this->normalizePayload($payload);
-
-        $this->emDebug("AgentRexiTools API call", [
+        $this->emDebug("Agent tool call", [
             'action' => $action,
-            'payload' => $payload,
-            'raw_POST' => $_POST,
-            'payload_type' => gettype($payload)
+            'payload' => $payload
         ]);
-
-        if ($action === 'debug') {
-            return $this->wrapResponse([
-                "debug" => true,
-                "action" => $action,
-                "payload" => $payload,
-                "payload_type" => gettype($payload),
-                "POST" => $_POST
-            ]);
-        }
 
         switch ($action) {
             case "escalation_create":
-                return $this->wrapResponse(
-                    $this->toolEscalationCreate($payload)
-                );
+                return $this->toolEscalationCreate($payload);
 
             case "escalation_list":
-                return $this->wrapResponse(
-                    $this->toolEscalationList($payload)
-                );
+                return $this->toolEscalationList($payload);
 
             case "escalation_get":
-                return $this->wrapResponse(
-                    $this->toolEscalationGet($payload)
-                );
+                return $this->toolEscalationGet($payload);
 
             default:
-                return $this->wrapResponse([
+                return [
                     "error" => true,
                     "message" => "Unknown action: $action"
-                ], 400);
+                ];
         }
-    }
-
-    private function wrapResponse(array $result, int $defaultStatus = 200)
-    {
-        return [
-            "status" => isset($result['error']) ? 400 : $defaultStatus,
-            "body" => json_encode($result),
-            "headers" => ["Content-Type" => "application/json"]
-        ];
-    }
-
-    private function normalizePayload(array $payload): array
-    {
-        if (!empty($payload['payload'])) {
-            $payloadData = json_decode($payload['payload'], true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                return $payloadData;
-            }
-        } elseif (empty($payload)) {
-            if (!empty($_POST['payload'])) {
-                $payloadData = json_decode($_POST['payload'], true);
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    return $payloadData;
-                }
-            } else {
-                $raw = file_get_contents("php://input");
-                $decoded = json_decode($raw, true);
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    return $decoded;
-                }
-                return $_POST;
-            }
-        }
-
-        return $payload;
     }
 
     private function getEscalationProjectId(): ?int

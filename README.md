@@ -15,7 +15,7 @@ User → Cappy (or other UX) → SecureChatAI (Agent Orchestrator) → THIS MODU
 1. User describes an issue in natural language ("I need help with my intake survey")
 2. The calling EM (Cappy, MSPA, or any EM) calls `$secureChatAI->callAI()` with `agent_mode => true`
 3. SecureChatAI's LLM decides to create/list/fetch an escalation ticket
-4. SecureChatAI invokes this module's `redcap_module_api()` via EM-to-EM direct PHP (no API token needed)
+4. SecureChatAI invokes this module's `handleToolCall()` via EM-to-EM direct PHP (no API token needed)
 5. This module executes the operation against the configured escalation project and returns structured JSON
 6. The LLM uses the result to compose a human-readable response
 
@@ -30,7 +30,7 @@ User → Cappy (or other UX) → SecureChatAI (Agent Orchestrator) → THIS MODU
    - System-wide: `agent_tool_em_prefixes` setting
    - Or per-project: `project_agent_tool_em_prefixes` setting
 
-That's it. SecureChatAI auto-discovers the tools from this module's config.json and invokes them via direct PHP calls (EM-to-EM). No API token, no HTTP requests — just one EM calling another's `redcap_module_api()` method in the same process.
+That's it. SecureChatAI auto-discovers the tools from this module's `tools.json` manifest and invokes them via direct PHP calls (EM-to-EM). No API token, no HTTP requests — just one EM calling another's `handleToolCall()` method in the same process.
 
 ### Auto-Discovery
 
@@ -65,7 +65,7 @@ These are the current defaults in `REDCapAgentRexiTools.php`. Update them to mat
 
 ## Tool Reference
 
-Every tool is called through `redcap_module_api($action, $payload)`. In production, SecureChatAI handles this via EM-to-EM PHP calls. For direct testing, you can also call via the REDCap API.
+Every tool is called through `handleToolCall($action, $payload)`. In production, SecureChatAI handles this via EM-to-EM PHP calls. Tool definitions live in `tools.json`.
 
 All tools return JSON. On success, you get the result object. On failure:
 ```json
