@@ -26,7 +26,8 @@
 				"properties": {
 					"status": {"type": "string", "enum": ["open", "in_progress", "resolved", "all"], "description": "Filter by ticket status", "default": "open"},
 					"username": {"type": "string", "description": "REDCap username to filter by"}
-				}
+				},
+				"required": []
 			},
 			"readOnly": true,
 			"destructive": false

@@ -171,17 +171,16 @@ curl -X POST https://your-redcap/api/ \
   -d 'payload={"message":"Create an escalation ticket about a broken survey","agent_mode":true}'
 ```
 
-### Direct API Call (Isolation Testing)
+### Direct PHP Call (Isolation Testing)
 
-Enable the tool EM on a project, get an API token, and call directly:
+Since `handleToolCall()` is a plain PHP method, you can call it directly from any test harness — no API token needed:
 
-```bash
-curl -X POST https://your-redcap/api/ \
-  -d "token=YOUR_PROJECT_TOKEN" \
-  -d "content=externalModule" \
-  -d "prefix=redcap_agent_rexi_tools" \
-  -d "action=escalation_create" \
-  -d 'payload={"subject":"Test ticket","summary":"Testing escalation creation"}'
+```php
+$toolEM = \ExternalModules\ExternalModules::getModuleInstance('redcap_agent_rexi_tools');
+$result = $toolEM->handleToolCall('escalation_create', [
+    'subject' => 'Test ticket',
+    'summary' => 'Testing escalation creation'
+]);
 ```
 
 ---
