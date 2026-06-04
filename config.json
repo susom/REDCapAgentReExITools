@@ -18,7 +18,13 @@
 	"permissions": [
 
 	],
-	
+
+	"api-actions": [
+		"escalation_create",
+		"escalation_list",
+		"escalation_get"
+	],
+
 	"framework-version": 14,
     "enable-every-page-hooks-on-system-pages": false,
 
